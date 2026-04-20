@@ -13,8 +13,8 @@ export const rateLimit = {
 
 export type PSTeam = { id: number; name: string; acronym: string | null; image_url: string | null };
 export type PSLeague = { id: number; name: string };
-export type PSSerie = { id: number; name: string | null; tier: string | null };
-export type PSTournament = { id: number; name: string };
+export type PSSerie = { id: number; name: string | null; full_name: string | null };
+export type PSTournament = { id: number; name: string; tier: string | null };
 export type PSGameMap = {
   id: number;
   position: number;

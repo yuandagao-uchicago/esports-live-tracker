@@ -105,13 +105,20 @@ curl -H "Accept: application/json" \
   "https://api.pandascore.co/valorant/matches/running?token=$PANDASCORE_API_KEY"
 ```
 
-Record results here:
+Recorded 2026-04-19 (free tier):
 
-- LoL `/matches/running` — _pending_
-- CSGO `/matches/running` — _pending_
-- Valorant `/matches/running` — _pending_
+| Game     | `/running` | `/upcoming` | `/past`   | Notes |
+|----------|-----------|-------------|-----------|-------|
+| LoL      | 200 `[]`  | 200 9.6 KB  | 200 12 KB | full access |
+| CSGO     | 200 `[]`  | 200 10.4 KB | 200 10.2 KB | full access |
+| Valorant | 200 `[]`  | 200 10.6 KB | 200 11.1 KB | full access |
 
-If any return 403 / empty / paywall, drop that game from scope (edit `WORKER_GAMES` env and `GAMES` in `apps/worker/src/db.ts`) rather than adding per-game scraper fallbacks.
+`running` was empty because no matches were live at the moment of testing — the endpoint itself is not gated. All three games pass the scope gate.
+
+Response-shape notes for the worker:
+- `tier` lives on `tournament`, not `serie`. `m.tournament.tier` is a single letter: `"s" | "a" | "b" | "c" | "d"`.
+- `serie` has `full_name` (e.g. `"2026"`) and no `tier`.
+- `games[]` has `{ id, position, status, winner: { id, type } }` and per-map score fields are not present on `/matches/running` or `/matches/upcoming` — we'll need to decide later if we call `/lol/games/:id` etc. for round-level scores. For MVP, per-match `results[].score` (maps won) is sufficient.
 
 ## Fallback plan (last resort)
 

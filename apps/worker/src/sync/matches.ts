@@ -50,7 +50,7 @@ async function upsertTournament(game: Game, m: PSMatch) {
         game,
         name: m.tournament.name,
         league_name: m.league.name,
-        tier: m.serie.tier,
+        tier: m.tournament.tier,
       },
       { onConflict: "provider_id,game" },
     )
