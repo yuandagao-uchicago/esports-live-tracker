@@ -37,6 +37,17 @@ body::before {
 
 main, header, footer { position: relative; z-index: 1; }
 
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer components {
   .glass {
     background: rgba(17, 18, 32, 0.55);

@@ -3,6 +3,7 @@ import { Oswald, Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { AuthNav } from "@/components/AuthNav";
+import { PageTransition } from "@/components/PageTransition";
 
 const display = Oswald({ subsets: ["latin"], variable: "--font-display", weight: ["400", "500", "600", "700"] });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "500", "600", "700"] });
@@ -39,7 +40,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </nav>
         </header>
 
-        <main className="mx-auto max-w-7xl px-5 pb-24">{children}</main>
+        <main className="mx-auto max-w-7xl px-5 pb-24">
+          <PageTransition>{children}</PageTransition>
+        </main>
 
         <footer className="border-t border-border py-8 text-center text-xs text-muted">
           Data from PandaScore · Built for MPCS 51238 Design, Build, Ship

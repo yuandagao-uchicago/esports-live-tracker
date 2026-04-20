@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { MatchCard } from "./MatchCard";
 import { FeaturedMatch } from "./FeaturedMatch";
 import { GameFilterChips } from "./GameFilterChips";
+import { Reveal } from "./Reveal";
 import { useLiveMatches } from "@/lib/realtime";
 import type { Game, MatchWithRelations } from "@/lib/types";
 
@@ -49,13 +50,15 @@ export function LiveMatchGrid({
       ) : (
         <>
           {showFeatured && featured ? (
-            <div className="mb-8">
+            <div className="mb-8 animate-fadeUp">
               <FeaturedMatch match={featured} />
             </div>
           ) : null}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {(showFeatured ? rest : visible).map((m) => (
-              <MatchCard key={m.id} match={m} />
+            {(showFeatured ? rest : visible).map((m, i) => (
+              <Reveal key={m.id} delay={Math.min(i * 40, 600)}>
+                <MatchCard match={m} />
+              </Reveal>
             ))}
           </div>
         </>

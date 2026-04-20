@@ -43,11 +43,39 @@ const config: Config = {
           "0%,100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        fadeUp: {
+          "0%": { opacity: "0", transform: "translateY(14px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        scoreFlash: {
+          "0%": { backgroundColor: "rgba(168,85,247,0)" },
+          "20%": { backgroundColor: "rgba(168,85,247,0.18)" },
+          "100%": { backgroundColor: "rgba(168,85,247,0)" },
+        },
+        spinSlow: {
+          to: { transform: "rotate(360deg)" },
+        },
+        drift: {
+          "0%,100%": { transform: "translate3d(0,0,0)" },
+          "50%": { transform: "translate3d(-18px,12px,0)" },
+        },
       },
       animation: {
         pulseRing: "pulseRing 1.6s ease-out infinite",
         shimmer: "shimmer 8s linear infinite",
         floatY: "floatY 6s ease-in-out infinite",
+        fadeUp: "fadeUp 600ms cubic-bezier(0.2,0.7,0.2,1) both",
+        fadeIn: "fadeIn 500ms ease-out both",
+        scoreFlash: "scoreFlash 900ms ease-out",
+        spinSlow: "spinSlow 40s linear infinite",
+        drift: "drift 14s ease-in-out infinite",
+      },
+      transitionTimingFunction: {
+        out: "cubic-bezier(0.2,0.7,0.2,1)",
       },
       backgroundImage: {
         hero: "radial-gradient(1200px 600px at 20% -10%, rgba(168,85,247,0.25), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(236,72,153,0.18), transparent 55%), radial-gradient(800px 600px at 50% 100%, rgba(6,182,212,0.14), transparent 55%)",

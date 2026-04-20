@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { GAME_THEME, MAP_SCORE_UNIT, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "./TeamLogo";
 import { GameBadge } from "./GameBadge";
@@ -14,19 +17,28 @@ export function MatchCard({ match }: { match: MatchWithRelations }) {
   const bWin = match.score_b > match.score_a;
   const currentMap = match.maps.find((m) => m.map_number === match.current_map_number);
 
+  const [flash, setFlash] = useState(false);
+  const lastUpdated = useRef(match.updated_at);
+  useEffect(() => {
+    if (lastUpdated.current !== match.updated_at) {
+      lastUpdated.current = match.updated_at;
+      setFlash(true);
+      const t = setTimeout(() => setFlash(false), 900);
+      return () => clearTimeout(t);
+    }
+  }, [match.updated_at]);
+
   return (
     <Link
       href={`/match/${match.id}`}
-      className={`group relative block overflow-hidden rounded-xl glass p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/20 ${
+      className={`group relative block overflow-hidden rounded-xl glass p-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:border-white/20 ${
         isLive ? theme.glow : ""
-      }`}
+      } ${flash ? "animate-scoreFlash" : ""}`}
     >
-      {/* top gradient accent bar */}
       <div
         className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r opacity-80 ${theme.gradient}`}
       />
 
-      {/* header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <GameBadge game={match.game} />
@@ -39,13 +51,11 @@ export function MatchCard({ match }: { match: MatchWithRelations }) {
         <StatusPill match={match} />
       </div>
 
-      {/* teams */}
       <div className="space-y-2.5">
         <TeamRow team={a} score={match.score_a} winning={aWin && (isLive || isFinished)} />
         <TeamRow team={b} score={match.score_b} winning={bWin && (isLive || isFinished)} />
       </div>
 
-      {/* footer */}
       <div className="mt-4 flex items-center justify-between text-[11px] text-muted">
         <span>{match.best_of ? `BO${match.best_of}` : ""}</span>
         {isLive && currentMap ? (
@@ -102,15 +112,19 @@ function TeamRow({
   winning: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 transition-colors duration-300">
       <TeamLogo team={team} size={36} />
       <span
-        className={`flex-1 truncate font-medium ${winning ? "text-ink" : "text-muted"}`}
+        className={`flex-1 truncate font-medium transition-colors duration-300 ${
+          winning ? "text-ink" : "text-muted"
+        }`}
       >
         {team?.name ?? "TBD"}
       </span>
       <span
-        className={`font-display text-xl font-bold tabular-nums ${winning ? "text-ink" : "text-muted"}`}
+        className={`font-display text-xl font-bold tabular-nums transition-colors duration-300 ${
+          winning ? "text-ink" : "text-muted"
+        }`}
       >
         {score}
       </span>

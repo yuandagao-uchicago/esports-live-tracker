@@ -5,14 +5,14 @@ export function Hero({ liveCount, upcomingCount }: { liveCount: number; upcoming
     <section className="relative mt-6 overflow-hidden rounded-2xl border border-border glass px-8 py-14 md:px-14 md:py-20">
       {/* corner glow */}
       <div
-        className="pointer-events-none absolute -right-40 -top-40 h-[420px] w-[420px] rounded-full blur-3xl opacity-40"
+        className="pointer-events-none absolute -right-40 -top-40 h-[420px] w-[420px] rounded-full blur-3xl opacity-40 animate-spinSlow"
         style={{
           background:
             "conic-gradient(from 180deg, #a855f7, #ec4899, #22d3ee, #a855f7)",
         }}
       />
       <div
-        className="pointer-events-none absolute -left-28 -bottom-28 h-[320px] w-[320px] rounded-full blur-3xl opacity-30"
+        className="pointer-events-none absolute -left-28 -bottom-28 h-[320px] w-[320px] rounded-full blur-3xl opacity-30 animate-drift"
         style={{ background: "radial-gradient(circle, #ff4655, transparent 60%)" }}
       />
 
