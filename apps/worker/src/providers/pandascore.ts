@@ -75,7 +75,12 @@ export async function fetchUpcoming(game: Game): Promise<PSMatch[]> {
 }
 
 export async function fetchRecent(game: Game): Promise<PSMatch[]> {
-  return request<PSMatch[]>(`/${game}/matches/past?per_page=${PER_PAGE}&sort=-end_at`);
+  // Scope to status=finished and sort by begin_at — PandaScore includes a
+  // pile of canceled matches (null end_at) on /past, which sort first under
+  // -end_at and crowd out real results.
+  return request<PSMatch[]>(
+    `/${game}/matches/past?per_page=${PER_PAGE}&filter[status]=finished&sort=-begin_at`,
+  );
 }
 
 export async function fetchMatch(game: Game, id: number): Promise<PSMatch> {
