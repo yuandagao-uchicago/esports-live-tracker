@@ -3,6 +3,7 @@ import { GAME_LABELS, GAME_THEME, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "./TeamLogo";
 import { GameBadge } from "./GameBadge";
 import { Countdown } from "./Countdown";
+import { StreamButton } from "./StreamLinks";
 
 export function FeaturedMatch({ match }: { match: MatchWithRelations }) {
   const theme = GAME_THEME[match.game];
@@ -81,16 +82,23 @@ export function FeaturedMatch({ match }: { match: MatchWithRelations }) {
           <TeamCell team={b} score={match.score_b} align="right" />
         </div>
 
-        {isLive && currentMap ? (
-          <div className="mt-8 inline-flex items-center gap-2.5 rounded-xl border border-border bg-black/30 px-5 py-3 text-sm text-muted">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-val opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-val" />
-            </span>
-            <span>
-              Map <span className="text-ink">{currentMap.map_number}</span> in progress
-              <span className="ml-2 text-muted/60">· of {match.best_of ?? match.maps.length}</span>
-            </span>
+        {isLive ? (
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {currentMap ? (
+              <div className="inline-flex items-center gap-2.5 rounded-xl border border-border bg-black/30 px-5 py-3 text-sm text-muted">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-val opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-val" />
+                </span>
+                <span>
+                  Map <span className="text-ink">{currentMap.map_number}</span> in progress
+                  <span className="ml-2 text-muted/60">
+                    · of {match.best_of ?? match.maps.length}
+                  </span>
+                </span>
+              </div>
+            ) : null}
+            <StreamButton streams={match.streams} size="lg" />
           </div>
         ) : null}
       </div>

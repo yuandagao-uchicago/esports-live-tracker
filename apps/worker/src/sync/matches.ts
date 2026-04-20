@@ -90,6 +90,13 @@ async function upsertMatch(game: Game, m: PSMatch) {
         winner_team_id: m.winner_id
           ? (await lookupTeamId(game, m.winner_id))
           : null,
+        streams: (m.streams_list ?? []).map((s) => ({
+          raw_url: s.raw_url,
+          embed_url: s.embed_url,
+          language: s.language,
+          main: s.main,
+          official: s.official,
+        })),
       },
       { onConflict: "provider_id,game" },
     )

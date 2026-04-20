@@ -32,6 +32,14 @@ export type MatchMap = {
   updated_at: string;
 };
 
+export type Stream = {
+  raw_url: string | null;
+  embed_url: string | null;
+  language: string | null;
+  main: boolean | null;
+  official: boolean | null;
+};
+
 export type Match = {
   id: number;
   provider_id: string;
@@ -47,6 +55,7 @@ export type Match = {
   score_b: number;
   current_map_number: number | null;
   winner_team_id: number | null;
+  streams: Stream[] | null;
   updated_at: string;
 };
 

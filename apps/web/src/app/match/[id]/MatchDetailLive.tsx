@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useLiveMatches } from "@/lib/realtime";
 import { GAME_THEME, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "@/components/TeamLogo";
 import { GameBadge } from "@/components/GameBadge";
 import { Countdown } from "@/components/Countdown";
+import { StreamList } from "@/components/StreamLinks";
 
 export function MatchDetailLive({ initial }: { initial: MatchWithRelations }) {
   const matches = useLiveMatches([initial]);
@@ -79,6 +81,15 @@ export function MatchDetailLive({ initial }: { initial: MatchWithRelations }) {
           <TeamSide team={b} align="right" />
         </div>
 
+        {match.streams && match.streams.length > 0 ? (
+          <div className="mt-8">
+            <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted">
+              Streams
+            </h2>
+            <StreamList streams={match.streams} />
+          </div>
+        ) : null}
+
         <div className="mt-10">
           <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted">
             Map breakdown
@@ -152,12 +163,8 @@ export function MatchDetailLive({ initial }: { initial: MatchWithRelations }) {
 }
 
 function TeamSide({ team, align }: { team: MatchWithRelations["team_a"]; align: "left" | "right" }) {
-  return (
-    <div
-      className={`flex items-center gap-4 ${
-        align === "right" ? "md:flex-row-reverse md:text-right" : ""
-      }`}
-    >
+  const content = (
+    <>
       <TeamLogo team={team} size={96} className="shrink-0" />
       <div className="min-w-0">
         <div className="truncate font-display text-3xl font-bold md:text-4xl">
@@ -167,6 +174,19 @@ function TeamSide({ team, align }: { team: MatchWithRelations["team_a"]; align: 
           <div className="text-xs uppercase tracking-[0.2em] text-muted">{team.acronym}</div>
         ) : null}
       </div>
-    </div>
+    </>
+  );
+  const flex = `flex items-center gap-4 ${
+    align === "right" ? "md:flex-row-reverse md:text-right" : ""
+  }`;
+  return team ? (
+    <Link
+      href={`/team/${team.id}`}
+      className={`${flex} rounded-lg p-2 -m-2 transition hover:bg-white/5`}
+    >
+      {content}
+    </Link>
+  ) : (
+    <div className={flex}>{content}</div>
   );
 }

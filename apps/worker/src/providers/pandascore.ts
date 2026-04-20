@@ -21,6 +21,13 @@ export type PSGameMap = {
   status: "not_started" | "running" | "finished";
   winner?: { id: number | null } | null;
 };
+export type PSStream = {
+  raw_url: string | null;
+  embed_url: string | null;
+  language: string | null;
+  main: boolean | null;
+  official: boolean | null;
+};
 export type PSMatch = {
   id: number;
   status: "not_started" | "running" | "finished" | "canceled" | "postponed";
@@ -35,6 +42,7 @@ export type PSMatch = {
   tournament: PSTournament;
   winner_id: number | null;
   games: PSGameMap[];
+  streams_list?: PSStream[];
   live?: { supported: boolean; url: string | null } | null;
 };
 
