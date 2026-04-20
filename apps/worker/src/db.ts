@@ -1,0 +1,17 @@
+import { createClient } from "@supabase/supabase-js";
+
+const url = process.env.SUPABASE_URL;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!url || !key) {
+  throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
+}
+
+export const db = createClient(url, key, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+export type Game = "lol" | "csgo" | "valorant";
+export const GAMES: Game[] = ["lol", "csgo", "valorant"];
+
+export type MatchStatus = "scheduled" | "live" | "finished" | "canceled";
