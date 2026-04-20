@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useNowTick } from "@/lib/useNowTick";
 
 export function Countdown({ iso, prefix = "in " }: { iso: string | null; prefix?: string }) {
-  const [, tick] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => tick((n) => n + 1), 30_000);
-    return () => clearInterval(id);
-  }, []);
+  const now = useNowTick(!!iso);
 
   if (!iso) return <span className="text-muted">TBD</span>;
 
-  const diff = new Date(iso).getTime() - Date.now();
+  const diff = new Date(iso).getTime() - now;
   if (diff <= 0) return <span className="text-muted">started</span>;
 
   const mins = Math.floor(diff / 60_000);

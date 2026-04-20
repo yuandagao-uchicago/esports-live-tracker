@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useNowTick } from "@/lib/useNowTick";
 import { GAME_THEME, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "./TeamLogo";
 import { GameBadge } from "./GameBadge";
@@ -20,14 +21,11 @@ export function MatchCard({ match }: { match: MatchWithRelations }) {
   const bWin = match.score_b > match.score_a;
   const currentMap = match.maps.find((m) => m.map_number === match.current_map_number);
 
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(id);
-  }, []);
   const startsAt = match.scheduled_at ? new Date(match.scheduled_at).getTime() : 0;
-  const isSoon =
-    match.status === "scheduled" && startsAt > 0 && startsAt - now <= SOON_MS && startsAt - now > 0;
+  // only subscribe to the shared tick when we actually need to re-evaluate "Soon"
+  const needsTick = match.status === "scheduled" && startsAt > 0;
+  const now = useNowTick(needsTick);
+  const isSoon = needsTick && startsAt - now <= SOON_MS && startsAt - now > 0;
 
   const [flash, setFlash] = useState(false);
   const lastUpdated = useRef(match.updated_at);
@@ -42,7 +40,7 @@ export function MatchCard({ match }: { match: MatchWithRelations }) {
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-xl glass p-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.005] hover:border-white/20 ${
+      className={`group relative overflow-hidden rounded-xl border border-border bg-[rgba(17,18,32,0.72)] p-4 transition-[transform,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-white/20 ${
         isLive ? theme.glow : ""
       } ${isSoon ? "ring-1 ring-csgo/40" : ""} ${flash ? "animate-scoreFlash" : ""}`}
     >

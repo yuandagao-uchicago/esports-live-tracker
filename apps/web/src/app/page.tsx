@@ -1,7 +1,6 @@
 import { Hero } from "@/components/Hero";
 import { LiveMatchGrid } from "@/components/LiveMatchGrid";
 import { MatchCard } from "@/components/MatchCard";
-import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
 import { fetchMatches, fetchRecent } from "@/lib/queries";
 import { createSupabaseServer } from "@/lib/supabase/server";
@@ -11,8 +10,8 @@ export const revalidate = 0;
 export default async function Home() {
   const supabase = await createSupabaseServer();
   const [upcomingAndLive, recent] = await Promise.all([
-    fetchMatches(supabase, { statuses: ["live", "scheduled"], limit: 60 }),
-    fetchRecent(supabase, 9),
+    fetchMatches(supabase, { statuses: ["live", "scheduled"], limit: 30 }),
+    fetchRecent(supabase, 6),
   ]);
 
   const liveCount = upcomingAndLive.filter((m) => m.status === "live").length;
@@ -37,10 +36,8 @@ export default async function Home() {
         <>
           <SectionHeader eyebrow="Recap" title="Recent Results" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {recent.map((m, i) => (
-              <Reveal key={m.id} delay={Math.min(i * 40, 400)}>
-                <MatchCard match={m} />
-              </Reveal>
+            {recent.map((m) => (
+              <MatchCard key={m.id} match={m} />
             ))}
           </div>
         </>
