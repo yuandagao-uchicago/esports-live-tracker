@@ -68,13 +68,7 @@ export async function fetchMatchById(
 ): Promise<MatchWithRelations | null> {
   const { data, error } = await supabase
     .from("matches")
-    .select(
-      `*,
-       team_a:teams!matches_team_a_id_fkey(*),
-       team_b:teams!matches_team_b_id_fkey(*),
-       tournament:tournaments(*),
-       maps:match_maps(*)`,
-    )
+    .select(SELECT)
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
