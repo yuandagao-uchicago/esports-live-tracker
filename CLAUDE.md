@@ -36,13 +36,16 @@ apps/web  (Next.js 15 App Router + Tailwind, Vercel)
 - `sync/matches.ts` — idempotent upserts. Teams and tournaments are upserted by `(provider_id, game)`; matches upsert adds `match_maps` rows by `(match_id, map_number)`.
 - `sync/health.ts` — in-memory counters, heartbeat writes singleton `worker_health` row every 30s.
 
-Rate budget (3 games, peak 6 concurrent live matches):
+Rate budget (3 games):
 | Loop              | Cadence | Req / hr |
 |-------------------|---------|----------|
-| running × 3 games | 45s     | 240      |
-| detail (~6 live)  | 30s     | ~720     |
+| running × 3 games | 30s     | 360      |
 | catalog × 3 games | 600s    | 36       |
-| **Total peak**    |         | **~996** — under 1000 req/hr budget |
+| **Total peak**    |         | **~396** — well under 1000 req/hr budget |
+
+Per-match detail polling (`/{game}/matches/:id`) was removed — PandaScore
+free tier returns 403 on that endpoint. The list endpoints already embed
+`games[]` and `streams_list`, so list polling alone covers live updates.
 
 ## Database
 

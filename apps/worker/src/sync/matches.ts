@@ -3,7 +3,6 @@ import {
   fetchRunning,
   fetchUpcoming,
   fetchRecent,
-  fetchMatch,
   type PSMatch,
 } from "../providers/pandascore.js";
 
@@ -133,29 +132,27 @@ async function lookupTeamId(game: Game, providerId: number): Promise<number | nu
   return data?.id ?? null;
 }
 
+async function upsertSafe(game: Game, m: PSMatch): Promise<boolean> {
+  try {
+    await upsertMatch(game, m);
+    return true;
+  } catch (err) {
+    console.error(
+      `[err] upsert ${game}/${m.id}:`,
+      err instanceof Error ? err.message : err,
+    );
+    return false;
+  }
+}
+
 export async function syncRunning(game: Game): Promise<number> {
   const matches = await fetchRunning(game);
-  for (const m of matches) await upsertMatch(game, m);
+  for (const m of matches) await upsertSafe(game, m);
   return matches.length;
 }
 
 export async function syncCatalog(game: Game): Promise<number> {
   const [upcoming, recent] = await Promise.all([fetchUpcoming(game), fetchRecent(game)]);
-  for (const m of [...upcoming, ...recent]) await upsertMatch(game, m);
+  for (const m of [...upcoming, ...recent]) await upsertSafe(game, m);
   return upcoming.length + recent.length;
-}
-
-export async function syncDetail(game: Game, providerId: number): Promise<void> {
-  const m = await fetchMatch(game, providerId);
-  await upsertMatch(game, m);
-}
-
-export async function listLiveProviderIds(game: Game): Promise<number[]> {
-  const { data, error } = await db
-    .from("matches")
-    .select("provider_id")
-    .eq("game", game)
-    .eq("status", "live");
-  if (error) throw error;
-  return (data ?? []).map((r) => Number(r.provider_id));
 }

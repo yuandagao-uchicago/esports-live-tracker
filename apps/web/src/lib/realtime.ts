@@ -15,10 +15,11 @@ export function useLiveMatches(initial: MatchWithRelations[]) {
 
   useEffect(() => {
     const supabase = (supabaseRef.current ??= createSupabaseBrowser());
+    let alive = true;
 
     const hydrate = async (id: number) => {
       const full = await fetchMatchById(supabase, id);
-      if (!full) return;
+      if (!alive || !full) return;
       setMatches((prev) => {
         const next = new Map(prev);
         next.set(full.id, full);
@@ -83,6 +84,7 @@ export function useLiveMatches(initial: MatchWithRelations[]) {
       .subscribe();
 
     return () => {
+      alive = false;
       supabase.removeChannel(matchChannel);
     };
   }, []);
