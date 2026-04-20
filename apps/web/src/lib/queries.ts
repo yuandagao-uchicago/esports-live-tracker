@@ -1,25 +1,37 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { MatchWithRelations } from "./types";
+import type { MatchStatus, MatchWithRelations } from "./types";
 
-export async function fetchMatches(
-  supabase: SupabaseClient,
-  opts: { teamIds?: number[]; tournamentIds?: number[] } = {},
-): Promise<MatchWithRelations[]> {
-  let q = supabase
-    .from("matches")
-    .select(
-      `*,
+const SELECT = `*,
        team_a:teams!matches_team_a_id_fkey(*),
        team_b:teams!matches_team_b_id_fkey(*),
        tournament:tournaments(*),
-       maps:match_maps(*)`,
-    )
-    .neq("status", "canceled")
+       maps:match_maps(*)`;
+
+type FetchOpts = {
+  teamIds?: number[];
+  tournamentIds?: number[];
+  statuses?: MatchStatus[];
+  limit?: number;
+  orderAsc?: boolean;
+};
+
+export async function fetchMatches(
+  supabase: SupabaseClient,
+  opts: FetchOpts = {},
+): Promise<MatchWithRelations[]> {
+  const statuses = opts.statuses ?? (["live", "scheduled"] as MatchStatus[]);
+  const limit = opts.limit ?? 60;
+  const asc = opts.orderAsc ?? true;
+
+  let q = supabase
+    .from("matches")
+    .select(SELECT)
+    .in("status", statuses)
     .not("team_a_id", "is", null)
     .not("team_b_id", "is", null)
     .order("status", { ascending: true })
-    .order("scheduled_at", { ascending: true })
-    .limit(60);
+    .order("scheduled_at", { ascending: asc })
+    .limit(limit);
 
   if (opts.teamIds?.length) {
     const ids = opts.teamIds.join(",");
@@ -30,6 +42,22 @@ export async function fetchMatches(
   }
 
   const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as unknown as MatchWithRelations[];
+}
+
+export async function fetchRecent(
+  supabase: SupabaseClient,
+  limit = 12,
+): Promise<MatchWithRelations[]> {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(SELECT)
+    .eq("status", "finished")
+    .not("team_a_id", "is", null)
+    .not("team_b_id", "is", null)
+    .order("began_at", { ascending: false, nullsFirst: false })
+    .limit(limit);
   if (error) throw error;
   return (data ?? []) as unknown as MatchWithRelations[];
 }

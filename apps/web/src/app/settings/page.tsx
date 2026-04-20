@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { SectionHeader } from "@/components/SectionHeader";
 import { SettingsForm } from "./SettingsForm";
 import type { Team, Tournament } from "@/lib/types";
 
@@ -14,15 +15,15 @@ export default async function SettingsPage() {
 
   const [{ data: teams }, { data: tournaments }, { data: favTeams }, { data: favTourns }] =
     await Promise.all([
-      supabase.from("teams").select("*").order("name").limit(500),
-      supabase.from("tournaments").select("*").order("name").limit(200),
+      supabase.from("teams").select("*").order("name").limit(1000),
+      supabase.from("tournaments").select("*").order("name").limit(500),
       supabase.from("user_favorite_teams").select("team_id").eq("user_id", user.id),
       supabase.from("user_favorite_tournaments").select("tournament_id").eq("user_id", user.id),
     ]);
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-semibold">Settings</h1>
+      <SectionHeader eyebrow="Personalize" title="Your preferences" />
       <SettingsForm
         teams={(teams ?? []) as Team[]}
         tournaments={(tournaments ?? []) as Tournament[]}

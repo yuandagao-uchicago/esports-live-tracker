@@ -62,8 +62,44 @@ export const GAME_LABELS: Record<Game, string> = {
   valorant: "Valorant",
 };
 
+export const GAME_SHORT: Record<Game, string> = {
+  lol: "LoL",
+  csgo: "CS",
+  valorant: "VAL",
+};
+
 export const MAP_SCORE_UNIT: Record<Game, string> = {
   lol: "kills",
   csgo: "rounds",
   valorant: "rounds",
+};
+
+export const GAME_THEME: Record<
+  Game,
+  { accent: string; text: string; ring: string; bg: string; glow: string; gradient: string }
+> = {
+  lol: {
+    accent: "#00d4ff",
+    text: "text-lol",
+    ring: "ring-lol/40",
+    bg: "bg-lol/10",
+    glow: "shadow-glowLol",
+    gradient: "from-[#00d4ff] via-[#3b82f6] to-[#0ea5e9]",
+  },
+  csgo: {
+    accent: "#ffb800",
+    text: "text-csgo",
+    ring: "ring-csgo/40",
+    bg: "bg-csgo/10",
+    glow: "shadow-glowCsgo",
+    gradient: "from-[#ffb800] via-[#f59e0b] to-[#fb923c]",
+  },
+  valorant: {
+    accent: "#ff4655",
+    text: "text-val",
+    ring: "ring-val/40",
+    bg: "bg-val/10",
+    glow: "shadow-glowVal",
+    gradient: "from-[#ff4655] via-[#e11d48] to-[#be123c]",
+  },
 };

@@ -1,4 +1,5 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { SectionHeader } from "@/components/SectionHeader";
 
 export const revalidate = 0;
 
@@ -22,35 +23,81 @@ export default async function HealthPage() {
   const healthy = ageSeconds !== null && ageSeconds < 120;
 
   return (
-    <div className="mx-auto max-w-lg">
-      <h1 className="mb-4 text-2xl font-semibold">Worker health</h1>
-      {!h ? (
-        <p className="text-gray-500">No heartbeat recorded yet.</p>
-      ) : (
-        <dl className="divide-y divide-border rounded border border-border">
-          <Row label="Status">
-            <span className={healthy ? "text-green-400" : "text-red-400"}>
-              {healthy ? "● healthy" : "● stale"}
-            </span>
-          </Row>
-          <Row label="Last poll">{formatAgo(h.last_poll_at)}</Row>
-          <Row label="Last success">{formatAgo(h.last_success_at)}</Row>
-          <Row label="Matches tracked">{h.matches_tracked}</Row>
-          <Row label="Polls (session)">{h.poll_count_24h}</Row>
-          <Row label="Errors (session)">{h.error_count_24h}</Row>
-          <Row label="Rate limit remaining">{h.rate_limit_remaining ?? "—"}</Row>
-          {h.last_error ? <Row label="Last error">{h.last_error}</Row> : null}
-        </dl>
-      )}
+    <div className="mx-auto max-w-2xl">
+      <SectionHeader eyebrow="Ops" title="Worker health" />
+
+      <div className="relative overflow-hidden rounded-2xl glass p-8">
+        <div
+          className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl opacity-30`}
+          style={{ background: healthy ? "#22c55e" : "#ef4444" }}
+        />
+        <div className="relative">
+          {!h ? (
+            <p className="text-muted">No heartbeat recorded yet.</p>
+          ) : (
+            <>
+              <div className="mb-6 flex items-center gap-3">
+                <span className={`relative flex h-3 w-3`}>
+                  <span
+                    className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
+                      healthy ? "bg-green-500" : "bg-val"
+                    }`}
+                  />
+                  <span
+                    className={`relative inline-flex h-3 w-3 rounded-full ${
+                      healthy ? "bg-green-500" : "bg-val"
+                    }`}
+                  />
+                </span>
+                <span className="font-display text-2xl font-semibold uppercase">
+                  {healthy ? "Healthy" : "Stale"}
+                </span>
+                <span className="text-muted">· polled {formatAgo(h.last_poll_at)}</span>
+              </div>
+
+              <dl className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                <Stat label="Matches tracked" value={h.matches_tracked} />
+                <Stat label="Polls (session)" value={h.poll_count_24h} />
+                <Stat label="Errors (session)" value={h.error_count_24h} accent={h.error_count_24h > 0 ? "val" : undefined} />
+                <Stat label="Last success" value={formatAgo(h.last_success_at)} />
+                <Stat label="Rate limit left" value={h.rate_limit_remaining ?? "—"} />
+              </dl>
+
+              {h.last_error ? (
+                <div className="mt-6 rounded-lg border border-val/30 bg-val/5 p-4 text-sm text-val">
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest">
+                    Last error
+                  </div>
+                  <code className="break-words font-mono text-[12px]">{h.last_error}</code>
+                </div>
+              ) : null}
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Stat({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  accent?: "val";
+}) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 text-sm">
-      <dt className="text-gray-400">{label}</dt>
-      <dd className="font-mono">{children}</dd>
+    <div className="rounded-lg border border-border bg-white/[0.02] p-4">
+      <dt className="text-[10px] font-semibold uppercase tracking-widest text-muted">{label}</dt>
+      <dd
+        className={`mt-1 font-display text-2xl font-semibold ${
+          accent === "val" ? "text-val" : "text-ink"
+        }`}
+      >
+        {value}
+      </dd>
     </div>
   );
 }
