@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createSupabaseBrowser } from "./supabase/client";
+import { fetchMatchById } from "./queries";
 import type { Match, MatchMap, MatchWithRelations } from "./types";
 
 type MatchMapPartial = Partial<MatchMap> & { id: number; match_id: number; map_number: number };
@@ -15,26 +16,49 @@ export function useLiveMatches(initial: MatchWithRelations[]) {
   useEffect(() => {
     const supabase = (supabaseRef.current ??= createSupabaseBrowser());
 
+    const hydrate = async (id: number) => {
+      const full = await fetchMatchById(supabase, id);
+      if (!full) return;
+      setMatches((prev) => {
+        const next = new Map(prev);
+        next.set(full.id, full);
+        return next;
+      });
+    };
+
     const matchChannel = supabase
       .channel("matches-stream")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "matches" },
         (payload) => {
-          setMatches((prev) => {
-            const next = new Map(prev);
-            if (payload.eventType === "DELETE") {
+          if (payload.eventType === "DELETE") {
+            setMatches((prev) => {
+              const next = new Map(prev);
               next.delete((payload.old as Match).id);
-            } else {
-              const row = payload.new as Match;
-              const existing = next.get(row.id);
-              next.set(row.id, {
-                ...(existing ?? { team_a: null, team_b: null, tournament: null, maps: [] }),
-                ...row,
-              });
+              return next;
+            });
+            return;
+          }
+          const row = payload.new as Match;
+          // Skip bracket placeholders ("Winner of X vs Winner of Y") — PandaScore
+          // publishes these with null team FKs before the prior match resolves.
+          if (row.team_a_id == null || row.team_b_id == null) return;
+
+          let needsHydrate = false;
+          setMatches((prev) => {
+            const existing = prev.get(row.id);
+            if (!existing) {
+              // New match via Realtime — hydrate joined team/tournament data
+              // out-of-band so we don't render "TBD".
+              needsHydrate = true;
+              return prev;
             }
+            const next = new Map(prev);
+            next.set(row.id, { ...existing, ...row });
             return next;
           });
+          if (needsHydrate) void hydrate(row.id);
         },
       )
       .on(
