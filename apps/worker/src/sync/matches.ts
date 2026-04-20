@@ -110,6 +110,7 @@ async function upsertMatch(game: Game, m: PSMatch) {
       {
         match_id: matchRow.id,
         map_number: g.position,
+        map_name: g.map?.name ?? null,
         status:
           g.status === "running" ? "live" : g.status === "finished" ? "finished" : "scheduled",
         winner_team_id: winnerId,

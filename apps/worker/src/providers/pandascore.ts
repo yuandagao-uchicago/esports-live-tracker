@@ -20,6 +20,7 @@ export type PSGameMap = {
   position: number;
   status: "not_started" | "running" | "finished";
   winner?: { id: number | null } | null;
+  map?: { id: number; name: string | null } | null;
 };
 export type PSStream = {
   raw_url: string | null;
