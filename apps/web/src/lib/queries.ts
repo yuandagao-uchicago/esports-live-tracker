@@ -23,27 +23,45 @@ export async function fetchMatches(
   const limit = opts.limit ?? 60;
   const asc = opts.orderAsc ?? true;
 
-  let q = supabase
-    .from("matches")
-    .select(SELECT)
-    .in("status", statuses)
-    .not("team_a_id", "is", null)
-    .not("team_b_id", "is", null)
-    .order("status", { ascending: true })
-    .order("scheduled_at", { ascending: asc })
-    .limit(limit);
+  // Run one query per status so we control the overall order — Postgres
+  // enum ordering follows declaration order ('scheduled' < 'live'), which
+  // would push live matches past the LIMIT when lots of scheduled exist.
+  // Status rank here is fixed: live → scheduled → finished → canceled.
+  const statusRank: Record<MatchStatus, number> = {
+    live: 0,
+    scheduled: 1,
+    finished: 2,
+    canceled: 3,
+  };
+  const ordered = [...statuses].sort((x, y) => statusRank[x] - statusRank[y]);
 
-  if (opts.teamIds?.length) {
-    const ids = opts.teamIds.join(",");
-    q = q.or(`team_a_id.in.(${ids}),team_b_id.in.(${ids})`);
-  }
-  if (opts.tournamentIds?.length) {
-    q = q.in("tournament_id", opts.tournamentIds);
-  }
+  const runOne = async (s: MatchStatus) => {
+    // Live matches read newest-first; scheduled read soonest-first by default.
+    const perStatusAsc = s === "live" ? false : asc;
+    let q = supabase
+      .from("matches")
+      .select(SELECT)
+      .eq("status", s)
+      .not("team_a_id", "is", null)
+      .not("team_b_id", "is", null)
+      .order("scheduled_at", { ascending: perStatusAsc, nullsFirst: false })
+      .limit(limit);
 
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data ?? []) as unknown as MatchWithRelations[];
+    if (opts.teamIds?.length) {
+      const ids = opts.teamIds.join(",");
+      q = q.or(`team_a_id.in.(${ids}),team_b_id.in.(${ids})`);
+    }
+    if (opts.tournamentIds?.length) {
+      q = q.in("tournament_id", opts.tournamentIds);
+    }
+
+    const { data, error } = await q;
+    if (error) throw error;
+    return (data ?? []) as unknown as MatchWithRelations[];
+  };
+
+  const results = await Promise.all(ordered.map(runOne));
+  return results.flat().slice(0, limit);
 }
 
 export async function fetchRecent(
