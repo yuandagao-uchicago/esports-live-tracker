@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { GAME_THEME, MAP_SCORE_UNIT, type MatchWithRelations } from "@/lib/types";
+import { GAME_THEME, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "./TeamLogo";
 import { GameBadge } from "./GameBadge";
 import { Countdown } from "./Countdown";
@@ -59,17 +59,14 @@ export function MatchCard({ match }: { match: MatchWithRelations }) {
       <div className="mt-4 flex items-center justify-between text-[11px] text-muted">
         <span>{match.best_of ? `BO${match.best_of}` : ""}</span>
         {isLive && currentMap ? (
-          <span>
-            Map {currentMap.map_number}:{" "}
-            <span className="font-mono text-ink">
-              {currentMap.score_a}–{currentMap.score_b}
-            </span>{" "}
-            <span className="text-muted/70">{MAP_SCORE_UNIT[match.game]}</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-val" />
+            Map {currentMap.map_number} in progress
           </span>
         ) : match.status === "scheduled" ? (
           <Countdown iso={match.scheduled_at ?? match.began_at} />
         ) : match.status === "finished" ? (
-          <span className="uppercase tracking-wider text-muted/70">Final</span>
+          <span className="uppercase tracking-wider text-muted/70">Final · {match.maps.length} maps</span>
         ) : null}
       </div>
     </Link>

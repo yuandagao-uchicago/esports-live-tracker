@@ -118,7 +118,9 @@ Recorded 2026-04-19 (free tier):
 Response-shape notes for the worker:
 - `tier` lives on `tournament`, not `serie`. `m.tournament.tier` is a single letter: `"s" | "a" | "b" | "c" | "d"`.
 - `serie` has `full_name` (e.g. `"2026"`) and no `tier`.
-- `games[]` has `{ id, position, status, winner: { id, type } }` and per-map score fields are not present on `/matches/running` or `/matches/upcoming` — we'll need to decide later if we call `/lol/games/:id` etc. for round-level scores. For MVP, per-match `results[].score` (maps won) is sufficient.
+- `games[]` has `{ id, position, status, winner: { id, type }, length, begin_at, end_at }` on both `/matches/past` (finished) and `/matches/upcoming` (not_started).
+- **No per-map round scores on the free tier.** Confirmed 2026-04-20: `/{game}/games/:id`, `/{game}/matches/:id`, and `/matches/:id` all return `403 Access Denied` with a free-tier key. Only match-level `results[].score` (maps won) is available.
+- **UI consequence**: `match_maps.score_a / score_b` stay at 0 for every row. The frontend does not display them — per-map view shows **winner + status (Live/Final/Upcoming)** instead.
 
 ## Fallback plan (last resort)
 

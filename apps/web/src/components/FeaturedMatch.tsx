@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GAME_LABELS, GAME_THEME, MAP_SCORE_UNIT, type MatchWithRelations } from "@/lib/types";
+import { GAME_LABELS, GAME_THEME, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "./TeamLogo";
 import { GameBadge } from "./GameBadge";
 import { Countdown } from "./Countdown";
@@ -82,13 +82,15 @@ export function FeaturedMatch({ match }: { match: MatchWithRelations }) {
         </div>
 
         {isLive && currentMap ? (
-          <div className="mt-8 rounded-xl border border-border bg-black/30 px-5 py-3 text-sm text-muted">
-            Map {currentMap.map_number}
-            {currentMap.map_name ? ` · ${currentMap.map_name}` : ""} —{" "}
-            <span className="font-mono text-ink">
-              {currentMap.score_a}–{currentMap.score_b}
-            </span>{" "}
-            <span className="text-muted/70">{MAP_SCORE_UNIT[match.game]}</span>
+          <div className="mt-8 inline-flex items-center gap-2.5 rounded-xl border border-border bg-black/30 px-5 py-3 text-sm text-muted">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-val opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-val" />
+            </span>
+            <span>
+              Map <span className="text-ink">{currentMap.map_number}</span> in progress
+              <span className="ml-2 text-muted/60">· of {match.best_of ?? match.maps.length}</span>
+            </span>
           </div>
         ) : null}
       </div>

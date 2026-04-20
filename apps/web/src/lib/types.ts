@@ -28,6 +28,7 @@ export type MatchMap = {
   score_b: number;
   status: MatchStatus;
   winner_team_id: number | null;
+  winner?: Team | null;
   updated_at: string;
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLiveMatches } from "@/lib/realtime";
-import { GAME_THEME, MAP_SCORE_UNIT, type MatchWithRelations } from "@/lib/types";
+import { GAME_THEME, type MatchWithRelations } from "@/lib/types";
 import { TeamLogo } from "@/components/TeamLogo";
 import { GameBadge } from "@/components/GameBadge";
 import { Countdown } from "@/components/Countdown";
@@ -14,7 +14,6 @@ export function MatchDetailLive({ initial }: { initial: MatchWithRelations }) {
   const b = match.team_b;
   const isLive = match.status === "live";
   const isFinished = match.status === "finished";
-  const unit = MAP_SCORE_UNIT[match.game];
 
   return (
     <div className={`relative overflow-hidden rounded-2xl glass p-6 md:p-10 ${isLive ? theme.glow : ""}`}>
@@ -82,7 +81,7 @@ export function MatchDetailLive({ initial }: { initial: MatchWithRelations }) {
 
         <div className="mt-10">
           <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted">
-            Maps
+            Map breakdown
           </h2>
           {match.maps.length === 0 ? (
             <p className="rounded-lg border border-border bg-white/5 px-4 py-3 text-sm text-muted">
@@ -95,30 +94,51 @@ export function MatchDetailLive({ initial }: { initial: MatchWithRelations }) {
                 .sort((x, y) => x.map_number - y.map_number)
                 .map((g) => {
                   const isCurrent = g.map_number === match.current_map_number;
+                  const isGameFinished = g.status === "finished";
+                  const isGameLive = g.status === "live" || isCurrent;
+                  const winner = g.winner ?? null;
                   return (
                     <li
                       key={g.id}
-                      className={`flex items-center justify-between px-4 py-3 ${
-                        isCurrent ? "bg-val/5" : ""
+                      className={`flex items-center justify-between gap-3 px-4 py-3 ${
+                        isGameLive ? "bg-val/5" : ""
                       }`}
                     >
-                      <span className="flex items-center gap-3">
+                      <span className="flex min-w-0 items-center gap-3">
                         <span className="font-display text-lg font-semibold text-muted">
                           {String(g.map_number).padStart(2, "0")}
                         </span>
-                        <span>
-                          {g.map_name ?? "—"}
-                          {isCurrent ? (
-                            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-val/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-val ring-1 ring-val/40">
-                              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-val" />
-                              Now
-                            </span>
-                          ) : null}
-                        </span>
+                        {isGameLive ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-val/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-val ring-1 ring-val/40">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-val" />
+                            Live
+                          </span>
+                        ) : isGameFinished ? (
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted">
+                            Final
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted/70">
+                            Upcoming
+                          </span>
+                        )}
                       </span>
-                      <span className="font-mono tabular-nums">
-                        {g.score_a}–{g.score_b}
-                        <span className="ml-2 text-xs text-muted">{unit}</span>
+                      <span className="flex min-w-0 items-center gap-2 text-sm">
+                        {isGameFinished && winner ? (
+                          <>
+                            <span className="text-xs uppercase tracking-wider text-muted">
+                              Winner
+                            </span>
+                            <TeamLogo team={winner} size={22} />
+                            <span className="truncate font-medium text-ink">
+                              {winner.acronym ?? winner.name}
+                            </span>
+                          </>
+                        ) : isGameLive ? (
+                          <span className="text-muted">in progress</span>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
                       </span>
                     </li>
                   );

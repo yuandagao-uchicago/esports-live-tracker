@@ -5,7 +5,7 @@ const SELECT = `*,
        team_a:teams!matches_team_a_id_fkey(*),
        team_b:teams!matches_team_b_id_fkey(*),
        tournament:tournaments(*),
-       maps:match_maps(*)`;
+       maps:match_maps(*, winner:teams!match_maps_winner_team_id_fkey(*))`;
 
 type FetchOpts = {
   teamIds?: number[];
