@@ -66,7 +66,10 @@ export function useLiveMatches(initial: MatchWithRelations[]) {
   return Array.from(matches.values()).sort((a, b) => {
     const sa = statusWeight(a.status) - statusWeight(b.status);
     if (sa !== 0) return sa;
-    return (b.began_at ?? b.scheduled_at ?? "").localeCompare(a.began_at ?? a.scheduled_at ?? "");
+    // scheduled: soonest-first (ASC); live/finished: most recent first (DESC)
+    const keyA = a.began_at ?? a.scheduled_at ?? "";
+    const keyB = b.began_at ?? b.scheduled_at ?? "";
+    return a.status === "scheduled" ? keyA.localeCompare(keyB) : keyB.localeCompare(keyA);
   });
 }
 

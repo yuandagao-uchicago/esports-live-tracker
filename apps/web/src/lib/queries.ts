@@ -14,9 +14,12 @@ export async function fetchMatches(
        tournament:tournaments(*),
        maps:match_maps(*)`,
     )
+    .neq("status", "canceled")
+    .not("team_a_id", "is", null)
+    .not("team_b_id", "is", null)
     .order("status", { ascending: true })
-    .order("scheduled_at", { ascending: false })
-    .limit(100);
+    .order("scheduled_at", { ascending: true })
+    .limit(60);
 
   if (opts.teamIds?.length) {
     const ids = opts.teamIds.join(",");
